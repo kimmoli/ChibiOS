@@ -123,9 +123,6 @@ void hal_lld_init(void) {
   rccResetAPB1(~RCC_APB1RSTR_PWRRST);
   rccResetAPB2(~0);
 
-  /* PWR clock enabled.*/
-  rccEnablePWRInterface(FALSE);
-
   /* Initializes the backup domain.*/
   hal_lld_backup_domain_init();
 
@@ -149,8 +146,13 @@ void hal_lld_init(void) {
 void stm32_clock_init(void) {
 
 #if !STM32_NO_INIT
-  /* PWR clock enable.*/
+  /* PWR clock enabled.*/
+#if defined(HAL_USE_RTC) &&                                                 \
+    defined(STM32F410xx)
+  RCC->APB1ENR = RCC_APB1ENR_PWREN | RCC_APB1ENR_RTCAPBEN;
+#else
   RCC->APB1ENR = RCC_APB1ENR_PWREN;
+#endif
 
   /* PWR initialization.*/
 #if defined(STM32F4XX) || defined(__DOXYGEN__)
