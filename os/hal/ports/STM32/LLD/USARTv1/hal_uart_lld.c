@@ -312,6 +312,11 @@ static void serve_usart_irq(UARTDriver *uartp) {
     /* End of transmission, a callback is generated.*/
     _uart_tx2_isr_code(uartp);
   }
+
+  /* Timeout interrupt source is only checked if enabled in CR1.*/
+  if ((sr & USART_SR_IDLE) && (cr1 & USART_CR1_IDLEIE)) {
+    _uart_timeout_isr_code(uartp);
+  }
 }
 
 /*===========================================================================*/
