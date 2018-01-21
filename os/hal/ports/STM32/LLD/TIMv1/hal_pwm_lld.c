@@ -90,6 +90,22 @@ PWMDriver PWMD8;
 PWMDriver PWMD9;
 #endif
 
+/**
+ * @brief   PWMD10 driver identifier.
+ * @note    The driver PWMD9 allocates the timer TIM10 when enabled.
+ */
+#if STM32_PWM_USE_TIM10 || defined(__DOXYGEN__)
+PWMDriver PWMD10;
+#endif
+
+/**
+ * @brief   PWMD11 driver identifier.
+ * @note    The driver PWMD9 allocates the timer TIM11 when enabled.
+ */
+#if STM32_PWM_USE_TIM11 || defined(__DOXYGEN__)
+PWMDriver PWMD11;
+#endif
+
 /*===========================================================================*/
 /* Driver local variables and types.                                         */
 /*===========================================================================*/
@@ -295,6 +311,48 @@ OSAL_IRQ_HANDLER(STM32_TIM9_HANDLER) {
 #endif /* !defined(STM32_TIM9_SUPPRESS_ISR) */
 #endif /* STM32_PWM_USE_TIM9 */
 
+#if STM32_PWM_USE_TIM10 || defined(__DOXYGEN__)
+#if !defined(STM32_TIM10_SUPPRESS_ISR)
+#if !defined(STM32_TIM10_HANDLER)
+#error "STM32_TIM10_HANDLER not defined"
+#endif
+/**
+ * @brief   TIM10 interrupt handler.
+ *
+ * @isr
+ */
+OSAL_IRQ_HANDLER(STM32_TIM10_HANDLER) {
+
+  OSAL_IRQ_PROLOGUE();
+
+  pwm_lld_serve_interrupt(&PWMD10);
+
+  OSAL_IRQ_EPILOGUE();
+}
+#endif /* !defined(STM32_TIM10_SUPPRESS_ISR) */
+#endif /* STM32_PWM_USE_TIM10 */
+
+#if STM32_PWM_USE_TIM11 || defined(__DOXYGEN__)
+#if !defined(STM32_TIM11_SUPPRESS_ISR)
+#if !defined(STM32_TIM11_HANDLER)
+#error "STM32_TIM11_HANDLER not defined"
+#endif
+/**
+ * @brief   TIM11 interrupt handler.
+ *
+ * @isr
+ */
+OSAL_IRQ_HANDLER(STM32_TIM11_HANDLER) {
+
+  OSAL_IRQ_PROLOGUE();
+
+  pwm_lld_serve_interrupt(&PWMD11);
+
+  OSAL_IRQ_EPILOGUE();
+}
+#endif /* !defined(STM32_TIM11_SUPPRESS_ISR) */
+#endif /* STM32_PWM_USE_TIM11 */
+
 /*===========================================================================*/
 /* Driver exported functions.                                                */
 /*===========================================================================*/
@@ -353,6 +411,20 @@ void pwm_lld_init(void) {
   pwmObjectInit(&PWMD9);
   PWMD9.channels = STM32_TIM9_CHANNELS;
   PWMD9.tim = STM32_TIM9;
+#endif
+
+#if STM32_PWM_USE_TIM10
+  /* Driver initialization.*/
+  pwmObjectInit(&PWMD10);
+  PWMD10.channels = STM32_TIM10_CHANNELS;
+  PWMD10.tim = STM32_TIM10;
+#endif
+
+#if STM32_PWM_USE_TIM11
+  /* Driver initialization.*/
+  pwmObjectInit(&PWMD11);
+  PWMD11.channels = STM32_TIM11_CHANNELS;
+  PWMD11.tim = STM32_TIM11;
 #endif
 }
 
@@ -472,6 +544,36 @@ void pwm_lld_start(PWMDriver *pwmp) {
 #endif
 #if defined(STM32_TIM9CLK)
       pwmp->clock = STM32_TIM9CLK;
+#else
+      pwmp->clock = STM32_TIMCLK2;
+#endif
+    }
+#endif
+
+#if STM32_PWM_USE_TIM10
+    if (&PWMD10 == pwmp) {
+      rccEnableTIM10(FALSE);
+      rccResetTIM10();
+#if !defined(STM32_TIM10_SUPPRESS_ISR)
+      nvicEnableVector(STM32_TIM10_NUMBER, STM32_PWM_TIM10_IRQ_PRIORITY);
+#endif
+#if defined(STM32_TIM10CLK)
+      pwmp->clock = STM32_TIM10CLK;
+#else
+      pwmp->clock = STM32_TIMCLK2;
+#endif
+    }
+#endif
+
+#if STM32_PWM_USE_TIM11
+    if (&PWMD11 == pwmp) {
+      rccEnableTIM11(FALSE);
+      rccResetTIM11();
+#if !defined(STM32_TIM11_SUPPRESS_ISR)
+      nvicEnableVector(STM32_TIM11_NUMBER, STM32_PWM_TIM11_IRQ_PRIORITY);
+#endif
+#if defined(STM32_TIM11CLK)
+      pwmp->clock = STM32_TIM11CLK;
 #else
       pwmp->clock = STM32_TIMCLK2;
 #endif
@@ -682,6 +784,24 @@ void pwm_lld_stop(PWMDriver *pwmp) {
       nvicDisableVector(STM32_TIM9_NUMBER);
 #endif
       rccDisableTIM9(FALSE);
+    }
+#endif
+
+#if STM32_PWM_USE_TIM10
+    if (&PWMD10 == pwmp) {
+#if !defined(STM32_TIM10_SUPPRESS_ISR)
+      nvicDisableVector(STM32_TIM10_NUMBER);
+#endif
+      rccDisableTIM10(FALSE);
+    }
+#endif
+
+#if STM32_PWM_USE_TIM11
+    if (&PWMD11 == pwmp) {
+#if !defined(STM32_TIM11_SUPPRESS_ISR)
+      nvicDisableVector(STM32_TIM11_NUMBER);
+#endif
+      rccDisableTIM11(FALSE);
     }
 #endif
   }
