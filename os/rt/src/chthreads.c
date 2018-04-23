@@ -184,6 +184,7 @@ thread_t *chThdCreateSuspendedI(const thread_descriptor_t *tdp) {
 #if (CH_DBG_ENABLE_STACK_CHECK == TRUE) || (CH_CFG_USE_DYNAMIC == TRUE)
   /* Stack boundary.*/
   tp->wabase = tdp->wbase;
+  tp->wapeak = (stkalign_t *)tp;
 #endif
 
   /* Setting up the port-dependent part of the working area.*/
@@ -351,6 +352,7 @@ thread_t *chThdCreateStatic(void *wsp, size_t size,
 #if (CH_DBG_ENABLE_STACK_CHECK == TRUE) || (CH_CFG_USE_DYNAMIC == TRUE)
   /* Stack boundary.*/
   tp->wabase = (stkalign_t *)wsp;
+  tp->wapeak = (stkalign_t *)tp;
 #endif
 
   /* Setting up the port-dependent part of the working area.*/

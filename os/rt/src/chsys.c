@@ -138,6 +138,7 @@ void chSysInit(void) {
        symbol must be provided externally.*/
     extern stkalign_t __main_thread_stack_base__;
     currp->wabase = &__main_thread_stack_base__;
+    currp->wapeak = (stkalign_t *)currp;
   }
 #elif CH_CFG_USE_DYNAMIC == TRUE
   currp->wabase = NULL;

@@ -174,6 +174,7 @@ struct ch_thread {
    *          dynamic threading.
    */
   stkalign_t            *wabase;
+  stkalign_t            *wapeak;
 #endif
   /**
    * @brief   Current thread state.
