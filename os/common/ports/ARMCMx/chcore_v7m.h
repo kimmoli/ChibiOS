@@ -463,6 +463,9 @@ struct port_intctx {
   if ((stkalign_t *)(r13 - 1) < (otp)->wabase) {                            \
     chSysHalt("stack overflow");                                            \
   }                                                                         \
+  if ((stkalign_t *)(r13 - 1) < (otp)->wapeak) {                            \
+    (otp)->wapeak = (stkalign_t *)(r13 - 1);                                \
+  }                                                                         \
   _port_switch(ntp, otp);                                                   \
 }
 #else
