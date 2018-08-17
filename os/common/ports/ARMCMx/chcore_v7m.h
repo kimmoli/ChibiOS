@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006, 2016, 2018 Giovanni Di Sirio.
+    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio.
 
     This file is part of ChibiOS.
 
@@ -14,14 +14,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see
-    <http://www.gnu.org/licenses/>.
-
-    Copyright (C) 2018 EKE Electronics Ltd.
-    - Modifed by Vesa Timonen to record stack peak use on context
-    switch.
-    - Modified by Jaakko Eskelinen/Convergens Oy to record peak use
-    also with guard pages defined
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /**
@@ -476,19 +469,8 @@ struct port_intctx {
   _port_switch(ntp, otp);                                                   \
 }
 #else
-/* Addeded the recording of the peak use still as the value will not
- * be available otherwise.  Keep the check as well even if
- * "impossible" as the MPU may have been disabled.
- */
 #define port_switch(ntp, otp) {                                             \
-  struct port_intctx *r13 = (struct port_intctx *)__get_PSP();              \
-  if ((stkalign_t *)(r13 - 1) < (otp)->wabase) {                            \
-    chSysHalt("stack overflow");                                            \
-  }                                                                         \
-  if ((stkalign_t *)(r13 - 1) < (otp)->wapeak) {                            \
-    (otp)->wapeak = (stkalign_t *)(r13 - 1);                                \
-  }                                                                     \
-  _port_switch(ntp, otp);                                               \
+  _port_switch(ntp, otp);                                                   \
                                                                             \
   /* Setting up the guard page for the switched-in thread.*/                \
   mpuConfigureRegion(MPU_REGION_0,                                          \
