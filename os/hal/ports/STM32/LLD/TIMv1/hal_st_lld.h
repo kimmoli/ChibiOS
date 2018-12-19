@@ -101,6 +101,15 @@
 #endif
 #define STM32_ST_TIM                              STM32_TIM22
 
+#elif STM32_ST_USE_TIMER == 11
+#if CH_CFG_ST_RESOLUTION != 16
+#error "TIM11 supports only 16 bit resolution"
+#endif
+#if !STM32_HAS_TIM11
+#error "TIM11 not present"
+#endif
+#define STM32_ST_TIM                              STM32_TIM11
+
 #else
 #error "STM32_ST_USE_TIMER specifies an unsupported timer"
 #endif

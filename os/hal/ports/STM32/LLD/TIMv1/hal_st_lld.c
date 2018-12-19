@@ -164,6 +164,23 @@
 #define ST_ENABLE_CLOCK()                   rccEnableTIM22(FALSE)
 #define ST_ENABLE_STOP()                    DBGMCU->APB1FZ |= DBGMCU_APB2_FZ_DBG_TIM21_STOP
 
+#elif STM32_ST_USE_TIMER == 11
+#if (OSAL_ST_RESOLUTION == 32) && !STM32_TIM22_IS_32BITS
+#error "TIM11 is not a 32bits timer"
+#endif
+
+#if defined(STM32_TIM11_IS_USED)
+#error "ST requires TIM11 but the timer is already used"
+#else
+#define STM32_TIM11_IS_USED
+#endif
+
+#define ST_HANDLER                          STM32_TIM11_HANDLER
+#define ST_NUMBER                           STM32_TIM11_NUMBER
+#define ST_CLOCK_SRC                        STM32_TIMCLK2
+#define ST_ENABLE_CLOCK()                   rccEnableTIM11(FALSE)
+#define ST_ENABLE_STOP()                    DBGMCU->APB2FZ |= DBGMCU_APB2_FZ_DBG_TIM11_STOP
+
 #else
 #error "STM32_ST_USE_TIMER specifies an unsupported timer"
 #endif
